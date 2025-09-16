@@ -1,3 +1,4 @@
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 import theme from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,7 +7,6 @@ import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
-  Platform,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -143,7 +143,6 @@ export default function UserTypeSelection() {
           backgroundColor: theme.colors.neutral.white,
           borderRadius: theme.borderRadius.xl,
           padding: theme.spacing.lg,
-          ...theme.shadows.md,
           borderWidth: 1,
           borderColor: theme.colors.border.light,
         }}
@@ -170,8 +169,9 @@ export default function UserTypeSelection() {
             backgroundColor: iconBg,
             justifyContent: 'center',
             alignItems: 'center',
-            ...theme.shadows.sm,
             marginRight: theme.spacing.md,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.2)',
           }}>
             <Ionicons
               name={icon}
@@ -270,7 +270,7 @@ export default function UserTypeSelection() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
+    <SafeAreaWrapper backgroundColor={theme.colors.background.primary}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor={theme.colors.background.primary}
@@ -315,7 +315,7 @@ export default function UserTypeSelection() {
       <Animated.View
         style={{
           paddingHorizontal: theme.spacing.lg,
-          paddingTop: Platform.OS === 'ios' ? 50 : 40,
+          paddingTop: theme.spacing.xl,
           paddingBottom: theme.spacing.md,
           opacity: contentFadeAnim,
           transform: [{ translateY: headerSlideDownAnim }],
@@ -407,6 +407,6 @@ export default function UserTypeSelection() {
           Choose your role to get started with the perfect experience
         </Text>
       </Animated.View>
-    </View>
+    </SafeAreaWrapper>
   );
 }

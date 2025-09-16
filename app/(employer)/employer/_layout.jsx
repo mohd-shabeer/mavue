@@ -17,7 +17,7 @@ export default function EmployerLayout() {
     if (pathname.includes("/home")) return "home";
     if (pathname.includes("/candidates")) return "candidates";
     if (pathname.includes("/jobs")) return "jobs";
-    if (pathname.includes("/messages")) return "messages";
+    if (pathname.includes("/chats")) return "messages";
     if (pathname.includes("/analytics")) return "analytics";
     if (pathname.includes("/company")) return "profile";
     return "home";
@@ -180,7 +180,7 @@ export default function EmployerLayout() {
         id: "messages",
         icon: "chatbubbles",
         label: "Messages",
-        route: "/employer/messages",
+        route: "/employer/chats",
       },
       {
         id: "analytics",

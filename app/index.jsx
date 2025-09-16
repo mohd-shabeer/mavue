@@ -1,3 +1,4 @@
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useRef } from "react";
@@ -80,7 +81,6 @@ export default function Index() {
             borderRadius: 25,
             transform: [{ translateY }, { scale }],
             opacity,
-            ...theme.shadows.md,
             borderWidth: 1,
             borderColor: 'rgba(255, 255, 255, 0.2)',
           },
@@ -213,7 +213,6 @@ export default function Index() {
                 padding: 4,
                 justifyContent: 'center',
                 alignItems: 'center',
-                ...theme.shadows.lg,
               }}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -224,7 +223,6 @@ export default function Index() {
                   height: width * 0.6,
                   borderRadius: width * 0.3,
                   backgroundColor: theme.colors.neutral.white,
-                  ...theme.shadows.xl,
                   justifyContent: "center",
                   alignItems: "center",
                   borderWidth: 2,
@@ -342,7 +340,6 @@ export default function Index() {
           ? theme.colors.primary.teal 
           : theme.colors.neutral.mediumGray,
         marginHorizontal: 4,
-        ...theme.shadows.sm,
         borderWidth: selected ? 2 : 0,
         borderColor: theme.colors.neutral.white,
       }}
@@ -354,9 +351,8 @@ export default function Index() {
     router.push('/choose-path');
   };
 
-  // Root container with guaranteed background
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background.primary }}>
+    <SafeAreaWrapper backgroundColor={theme.colors.background.primary}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor={theme.colors.background.primary}
@@ -470,7 +466,6 @@ export default function Index() {
           paddingTop: theme.spacing.lg,
           borderTopWidth: 1,
           borderTopColor: theme.colors.border.light,
-          ...theme.shadows.lg,
         }}
       >
         <View
@@ -496,7 +491,7 @@ export default function Index() {
               paddingVertical: theme.spacing.xs,
               borderRadius: theme.borderRadius.sm,
             }}
-            onPress={() => router.push('/employer/home')}
+            onPress={() => router.push('/choose-path')}
             activeOpacity={0.7}
           >
             <Text
@@ -512,6 +507,6 @@ export default function Index() {
           </TouchableOpacity>
           </View>
       </View>
-    </View>
+    </SafeAreaWrapper>
   );
 }

@@ -6,16 +6,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View
+  Animated,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -108,7 +108,7 @@ export default function EmployerLogin() {
         console.log("Employer Login:", formData);
         setTimeout(() => {
           setIsLoading(false);
-          router.push('/employer/dashboard');
+          router.push('/employer/home');
         }, 2000);
       } catch (error) {
         setIsLoading(false);
