@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "mavue",
-    "slug": "mavue",
+    "name": "Manvue",
+    "slug": "manvue",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mavue",
+    "scheme": "manvue",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
