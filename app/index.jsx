@@ -9,7 +9,7 @@ import {
   StatusBar,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
 import theme from "../theme";
@@ -54,7 +54,12 @@ export default function Index() {
   }, []);
 
   // Floating Skill Tag Component
-  const SkillTag = ({ children, animValue, style, backgroundColor = theme.colors.primary.teal }) => {
+  const SkillTag = ({
+    children,
+    animValue,
+    style,
+    backgroundColor = theme.colors.primary.teal,
+  }) => {
     const translateY = animValue.interpolate({
       inputRange: [0, 1],
       outputRange: [0, -15],
@@ -82,7 +87,7 @@ export default function Index() {
             transform: [{ translateY }, { scale }],
             opacity,
             borderWidth: 1,
-            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: "rgba(255, 255, 255, 0.2)",
           },
           style,
         ]}
@@ -92,7 +97,7 @@ export default function Index() {
             color: theme.colors.neutral.white,
             fontSize: theme.typography.sizes.sm,
             fontFamily: theme.typography.fonts.semiBold,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           {children}
@@ -102,7 +107,13 @@ export default function Index() {
   };
 
   // Custom Page Component with fixed animations
-  const CustomPage = ({ title, highlightWord, description, skills, gradientColors }) => {
+  const CustomPage = ({
+    title,
+    highlightWord,
+    description,
+    skills,
+    gradientColors,
+  }) => {
     // Content-only animations (not the whole container)
     const contentFadeAnim = useRef(new Animated.Value(0)).current;
     const contentSlideUpAnim = useRef(new Animated.Value(30)).current;
@@ -134,23 +145,31 @@ export default function Index() {
       ]).start();
     }, [title, highlightWord, description]);
 
-    const skillAnims = [skill1Anim, skill2Anim, skill3Anim, skill4Anim, skill5Anim];
+    const skillAnims = [
+      skill1Anim,
+      skill2Anim,
+      skill3Anim,
+      skill4Anim,
+      skill5Anim,
+    ];
 
     return (
       // Background stays visible (no opacity animation)
-      <View 
-        style={{ 
-          flex: 1, 
+      <View
+        style={{
+          flex: 1,
           backgroundColor: theme.colors.background.primary,
         }}
       >
         {/* Background Gradient - Always visible */}
         <LinearGradient
-          colors={gradientColors || [
-            theme.colors.background.accent,
-            theme.colors.background.primary,
-            'rgba(27, 163, 163, 0.05)',
-          ]}
+          colors={
+            gradientColors || [
+              theme.colors.background.accent,
+              theme.colors.background.primary,
+              "rgba(27, 163, 163, 0.05)",
+            ]
+          }
           style={{
             position: "absolute",
             left: 0,
@@ -162,34 +181,38 @@ export default function Index() {
         />
 
         {/* Decorative background elements - Always visible */}
-        <View style={{
-          position: 'absolute',
-          top: height * 0.1,
-          right: -50,
-          width: 150,
-          height: 150,
-          borderRadius: 75,
-          backgroundColor: 'rgba(27, 163, 163, 0.05)',
-        }} />
-        
-        <View style={{
-          position: 'absolute',
-          top: height * 0.3,
-          left: -30,
-          width: 100,
-          height: 100,
-          borderRadius: 50,
-          backgroundColor: 'rgba(255, 138, 61, 0.05)',
-        }} />
+        <View
+          style={{
+            position: "absolute",
+            top: height * 0.1,
+            right: -50,
+            width: 150,
+            height: 150,
+            borderRadius: 75,
+            backgroundColor: "rgba(27, 163, 163, 0.05)",
+          }}
+        />
+
+        <View
+          style={{
+            position: "absolute",
+            top: height * 0.3,
+            left: -30,
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: "rgba(255, 138, 61, 0.05)",
+          }}
+        />
 
         {/* Main Content - Only this part animates */}
-        <Animated.View 
-          style={{ 
-            flex: 1, 
+        <Animated.View
+          style={{
+            flex: 1,
             paddingHorizontal: theme.spacing.lg,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: height * 0.05,
+            // paddingTop: height * 0.05,
             opacity: contentFadeAnim,
             transform: [{ translateY: contentSlideUpAnim }],
           }}
@@ -211,8 +234,8 @@ export default function Index() {
                 height: width * 0.65,
                 borderRadius: width * 0.325,
                 padding: 4,
-                justifyContent: 'center',
-                alignItems: 'center',
+                justifyContent: "center",
+                alignItems: "center",
               }}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -282,11 +305,15 @@ export default function Index() {
           >
             <Text
               style={{
-                fontSize: Math.min(theme.typography.sizes.heading, width * 0.08),
+                fontSize: Math.min(
+                  theme.typography.sizes.heading,
+                  width * 0.08
+                ),
                 fontFamily: theme.typography.fonts.bold,
                 color: theme.colors.text.primary,
                 textAlign: "center",
-                lineHeight: Math.min(theme.typography.sizes.heading, width * 0.08) * 1.25,
+                lineHeight:
+                  Math.min(theme.typography.sizes.heading, width * 0.08) * 1.25,
                 marginBottom: theme.spacing.sm,
                 letterSpacing: 0.5,
               }}
@@ -295,13 +322,17 @@ export default function Index() {
             </Text>
             <Text
               style={{
-                fontSize: Math.min(theme.typography.sizes.heading, width * 0.08),
+                fontSize: Math.min(
+                  theme.typography.sizes.heading,
+                  width * 0.08
+                ),
                 fontFamily: theme.typography.fonts.extraBold,
                 color: theme.colors.primary.teal,
                 textAlign: "center",
-                lineHeight: Math.min(theme.typography.sizes.heading, width * 0.08) * 1.25,
+                lineHeight:
+                  Math.min(theme.typography.sizes.heading, width * 0.08) * 1.25,
                 letterSpacing: 0.5,
-                textShadowColor: 'rgba(27, 163, 163, 0.3)',
+                textShadowColor: "rgba(27, 163, 163, 0.3)",
                 textShadowOffset: { width: 0, height: 2 },
                 textShadowRadius: 4,
               }}
@@ -336,8 +367,8 @@ export default function Index() {
         width: selected ? 24 : 10,
         height: 10,
         borderRadius: selected ? 12 : 5,
-        backgroundColor: selected 
-          ? theme.colors.primary.teal 
+        backgroundColor: selected
+          ? theme.colors.primary.teal
           : theme.colors.neutral.mediumGray,
         marginHorizontal: 4,
         borderWidth: selected ? 2 : 0,
@@ -348,7 +379,7 @@ export default function Index() {
 
   const onDone = () => {
     console.log("Onboarding completed! Navigating to choose path...");
-    router.push('/choose-path');
+    router.push("/choose-path");
   };
 
   return (
@@ -358,7 +389,7 @@ export default function Index() {
         backgroundColor={theme.colors.background.primary}
         translucent={false}
       />
-      
+
       <Onboarding
         pages={[
           {
@@ -368,11 +399,17 @@ export default function Index() {
                 title="Find Your Dream"
                 highlightWord="Career Path"
                 description="Skip the endless job listings. Connect directly with employers who value your unique skills and expertise."
-                skills={["#Designer", "#Manager", "#Developer", "#UX Expert", "#Analyst"]}
+                skills={[
+                  "#Designer",
+                  "#Manager",
+                  "#Developer",
+                  "#UX Expert",
+                  "#Analyst",
+                ]}
                 gradientColors={[
                   theme.colors.background.accent,
                   theme.colors.background.primary,
-                  'rgba(27, 163, 163, 0.03)',
+                  "rgba(27, 163, 163, 0.03)",
                 ]}
               />
             ),
@@ -386,11 +423,17 @@ export default function Index() {
                 title="Skills-Based"
                 highlightWord="Smart Matching"
                 description="Our AI-powered system matches you with opportunities based on your actual skills, not just keywords."
-                skills={["#React Native", "#UI/UX", "#Node.js", "#Python", "#Mobile"]}
+                skills={[
+                  "#React Native",
+                  "#UI/UX",
+                  "#Node.js",
+                  "#Python",
+                  "#Mobile",
+                ]}
                 gradientColors={[
-                  'rgba(255, 138, 61, 0.08)',
+                  "rgba(255, 138, 61, 0.08)",
                   theme.colors.background.primary,
-                  'rgba(255, 138, 61, 0.03)',
+                  "rgba(255, 138, 61, 0.03)",
                 ]}
               />
             ),
@@ -404,11 +447,17 @@ export default function Index() {
                 title="Direct"
                 highlightWord="Connection"
                 description="Chat, call, and interview directly with hiring managers. No middlemen, no spam, just real opportunities."
-                skills={["#Remote Work", "#Full-time", "#Freelance", "#Startup", "#Enterprise"]}
+                skills={[
+                  "#Remote Work",
+                  "#Full-time",
+                  "#Freelance",
+                  "#Startup",
+                  "#Enterprise",
+                ]}
                 gradientColors={[
-                  'rgba(30, 74, 114, 0.08)',
+                  "rgba(30, 74, 114, 0.08)",
                   theme.colors.background.primary,
-                  'rgba(30, 74, 114, 0.03)',
+                  "rgba(30, 74, 114, 0.03)",
                 ]}
               />
             ),
@@ -422,7 +471,8 @@ export default function Index() {
         bottomBarHighlight={false}
         bottomBarColor={theme.colors.background.primary}
         controlStatusBar={false}
-        showSkip={true}
+        showSkip={false}
+        showNext={false}
         skipToPage={2}
         containerStyles={{
           paddingHorizontal: 0,
@@ -433,10 +483,10 @@ export default function Index() {
           flex: 1,
         }}
         titleStyles={{
-          display: 'none',
+          display: "none",
         }}
         subTitleStyles={{
-          display: 'none',
+          display: "none",
         }}
         bottomBarStyle={{
           backgroundColor: theme.colors.background.primary,
@@ -457,7 +507,7 @@ export default function Index() {
       <View
         style={{
           position: "absolute",
-          bottom: 0,
+          bottom: 20,
           left: 0,
           right: 0,
           backgroundColor: theme.colors.background.primary,
@@ -491,7 +541,7 @@ export default function Index() {
               paddingVertical: theme.spacing.xs,
               borderRadius: theme.borderRadius.sm,
             }}
-            onPress={() => router.push('/choose-path')}
+            onPress={() => router.push("/choose-path")}
             activeOpacity={0.7}
           >
             <Text
@@ -505,8 +555,9 @@ export default function Index() {
               Get Started
             </Text>
           </TouchableOpacity>
-          </View>
+        </View>
       </View>
+      <View style={{ height: 30 * 2 }} />
     </SafeAreaWrapper>
   );
 }
