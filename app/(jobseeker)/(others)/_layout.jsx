@@ -7,6 +7,7 @@ export default function JobLayout() {
     <SafeAreaWrapper>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="message-details/[id]" />
+        <Stack.Screen name="notifications" />
       </Stack>
     </SafeAreaWrapper>
   );

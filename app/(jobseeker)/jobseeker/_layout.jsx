@@ -113,7 +113,7 @@ export default function JobSeekerLayout() {
         }}
       >
         {/* Search Icon - only show on home */}
-        {currentTab === "home" && (
+        {/* {currentTab === "home" && (
           <TouchableOpacity
             onPress={() => router.push("/search")}
             style={{
@@ -129,7 +129,7 @@ export default function JobSeekerLayout() {
               color={theme.colors.primary.teal}
             />
           </TouchableOpacity>
-        )}
+        )} */}
 
         {/* Notifications */}
         <TouchableOpacity
