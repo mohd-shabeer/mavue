@@ -4,13 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    RefreshControl,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  FlatList,
+  RefreshControl,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -18,9 +18,9 @@ const { width } = Dimensions.get('window');
 export default function EmployerCandidates() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'shortlisted', 'applied', 'interviewed'
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'discovered', 'proposal_sent', 'accepted'
 
-  // Mock candidates data
+  // Mock candidates data - redesigned for reverse recruitment
   const [candidates] = useState([
     {
       id: '1',
@@ -33,8 +33,10 @@ export default function EmployerCandidates() {
       education: 'B.Tech Computer Science',
       institution: 'IIT Mumbai',
       matchPercentage: 95,
-      status: 'applied', // 'applied', 'shortlisted', 'interviewed', 'hired', 'rejected'
-      appliedTime: '2 hours ago',
+      status: 'discovered', // 'discovered', 'proposal_sent', 'accepted', 'rejected'
+      matchedJobTitle: 'Senior React Developer',
+      discoveredTime: '2 hours ago',
+      proposalSentTime: null,
       salary: '₹12L - ₹18L',
       profileCompletion: 92,
       isAvailable: true,
@@ -52,8 +54,10 @@ export default function EmployerCandidates() {
       education: 'M.Tech Software Engineering',
       institution: 'BITS Pilani',
       matchPercentage: 88,
-      status: 'shortlisted',
-      appliedTime: '5 hours ago',
+      status: 'proposal_sent',
+      matchedJobTitle: 'Frontend Developer',
+      discoveredTime: '5 hours ago',
+      proposalSentTime: '2 hours ago',
       salary: '₹8L - ₹14L',
       profileCompletion: 88,
       isAvailable: true,
@@ -71,8 +75,10 @@ export default function EmployerCandidates() {
       education: 'B.E. Information Technology',
       institution: 'Pune University',
       matchPercentage: 82,
-      status: 'interviewed',
-      appliedTime: '1 day ago',
+      status: 'accepted',
+      matchedJobTitle: 'Full Stack Developer',
+      discoveredTime: '1 day ago',
+      proposalSentTime: '8 hours ago',
       salary: '₹10L - ₹16L',
       profileCompletion: 85,
       isAvailable: false,
@@ -90,8 +96,10 @@ export default function EmployerCandidates() {
       education: 'MCA',
       institution: 'Delhi University',
       matchPercentage: 91,
-      status: 'applied',
-      appliedTime: '3 hours ago',
+      status: 'discovered',
+      matchedJobTitle: 'Mobile App Developer',
+      discoveredTime: '3 hours ago',
+      proposalSentTime: null,
       salary: '₹9L - ₹15L',
       profileCompletion: 90,
       isAvailable: true,
@@ -109,8 +117,10 @@ export default function EmployerCandidates() {
       education: 'B.Tech Computer Science',
       institution: 'NIT Warangal',
       matchPercentage: 87,
-      status: 'shortlisted',
-      appliedTime: '6 hours ago',
+      status: 'proposal_sent',
+      matchedJobTitle: 'Senior Backend Developer',
+      discoveredTime: '6 hours ago',
+      proposalSentTime: '4 hours ago',
       salary: '₹14L - ₹22L',
       profileCompletion: 94,
       isAvailable: true,
@@ -141,7 +151,8 @@ export default function EmployerCandidates() {
         candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         candidate.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
         candidate.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        candidate.location.toLowerCase().includes(searchQuery.toLowerCase())
+        candidate.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        candidate.matchedJobTitle.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -152,9 +163,9 @@ export default function EmployerCandidates() {
   const getFilterStats = () => {
     return {
       all: candidates.length,
-      applied: candidates.filter(c => c.status === 'applied').length,
-      shortlisted: candidates.filter(c => c.status === 'shortlisted').length,
-      interviewed: candidates.filter(c => c.status === 'interviewed').length,
+      discovered: candidates.filter(c => c.status === 'discovered').length,
+      proposal_sent: candidates.filter(c => c.status === 'proposal_sent').length,
+      accepted: candidates.filter(c => c.status === 'accepted').length,
     };
   };
 
@@ -172,6 +183,105 @@ export default function EmployerCandidates() {
         borderBottomColor: theme.colors.border.light,
       }}
     >
+      {/* Discovery Stats */}
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: theme.spacing.sm,
+          marginBottom: theme.spacing.md,
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.background.accent,
+            borderRadius: theme.borderRadius.lg,
+            padding: theme.spacing.md,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xl,
+              fontFamily: theme.typography.fonts.bold,
+              color: theme.colors.primary.teal,
+            }}
+          >
+            {candidates.length}
+          </Text>
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xs,
+              fontFamily: theme.typography.fonts.medium,
+              color: theme.colors.text.secondary,
+              textAlign: 'center',
+            }}
+          >
+            Total Matches
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.background.accent,
+            borderRadius: theme.borderRadius.lg,
+            padding: theme.spacing.md,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xl,
+              fontFamily: theme.typography.fonts.bold,
+              color: theme.colors.primary.orange,
+            }}
+          >
+            {stats.discovered}
+          </Text>
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xs,
+              fontFamily: theme.typography.fonts.medium,
+              color: theme.colors.text.secondary,
+              textAlign: 'center',
+            }}
+          >
+            New Discoveries
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.background.accent,
+            borderRadius: theme.borderRadius.lg,
+            padding: theme.spacing.md,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xl,
+              fontFamily: theme.typography.fonts.bold,
+              color: theme.colors.status.success,
+            }}
+          >
+            {stats.accepted}
+          </Text>
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.xs,
+              fontFamily: theme.typography.fonts.medium,
+              color: theme.colors.text.secondary,
+              textAlign: 'center',
+            }}
+          >
+            Accepted
+          </Text>
+        </View>
+      </View>
+
       {/* Search Bar */}
       <View
         style={{
@@ -193,7 +303,7 @@ export default function EmployerCandidates() {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search candidates by name, skills, or location..."
+          placeholder="Search by name, skills, position, or matching job..."
           placeholderTextColor={theme.colors.text.placeholder}
           style={{
             flex: 1,
@@ -219,10 +329,10 @@ export default function EmployerCandidates() {
       {/* Filter Tabs */}
       <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
         {[
-          { id: 'all', label: 'All', count: stats.all },
-          { id: 'applied', label: 'Applied', count: stats.applied },
-          { id: 'shortlisted', label: 'Shortlisted', count: stats.shortlisted },
-          { id: 'interviewed', label: 'Interviewed', count: stats.interviewed },
+          { id: 'all', label: 'All Matches', count: stats.all },
+          { id: 'discovered', label: 'New', count: stats.discovered },
+          { id: 'proposal_sent', label: 'Proposals Sent', count: stats.proposal_sent },
+          { id: 'accepted', label: 'Accepted', count: stats.accepted },
         ].map((filter) => (
           <TouchableOpacity
             key={filter.id}
@@ -283,15 +393,25 @@ export default function EmployerCandidates() {
     </View>
   );
 
-  // Candidate Item Component
+  // Candidate Item Component - Redesigned for discovery model
   const CandidateItem = ({ item }) => {
     const getStatusColor = () => {
       switch (item.status) {
-        case 'shortlisted': return theme.colors.status.success;
-        case 'interviewed': return theme.colors.primary.orange;
-        case 'hired': return theme.colors.primary.deepBlue;
+        case 'discovered': return theme.colors.primary.orange;
+        case 'proposal_sent': return theme.colors.primary.deepBlue;
+        case 'accepted': return theme.colors.status.success;
         case 'rejected': return theme.colors.status.error;
         default: return theme.colors.text.tertiary;
+      }
+    };
+
+    const getStatusText = () => {
+      switch (item.status) {
+        case 'discovered': return 'New Discovery';
+        case 'proposal_sent': return 'Proposal Sent';
+        case 'accepted': return 'Accepted';
+        case 'rejected': return 'Rejected';
+        default: return 'Unknown';
       }
     };
 
@@ -318,8 +438,8 @@ export default function EmployerCandidates() {
                 width: 50,
                 height: 50,
                 borderRadius: 25,
-                backgroundColor: item.status === 'applied' || item.status === 'shortlisted'
-                  ? theme.colors.primary.teal 
+                backgroundColor: item.status === 'discovered' 
+                  ? theme.colors.primary.orange 
                   : theme.colors.background.accent,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -331,7 +451,7 @@ export default function EmployerCandidates() {
                 style={{
                   fontSize: theme.typography.sizes.base,
                   fontFamily: theme.typography.fonts.bold,
-                  color: item.status === 'applied' || item.status === 'shortlisted'
+                  color: item.status === 'discovered' 
                     ? theme.colors.neutral.white 
                     : theme.colors.primary.teal,
                 }}
@@ -382,6 +502,16 @@ export default function EmployerCandidates() {
             </Text>
             <Text
               style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.primary.teal,
+                marginBottom: theme.spacing.xs,
+              }}
+            >
+              Matches: {item.matchedJobTitle}
+            </Text>
+            <Text
+              style={{
                 fontSize: theme.typography.sizes.xs,
                 fontFamily: theme.typography.fonts.regular,
                 color: theme.colors.text.tertiary,
@@ -407,10 +537,9 @@ export default function EmployerCandidates() {
                   fontSize: theme.typography.sizes.xs,
                   fontFamily: theme.typography.fonts.medium,
                   color: getStatusColor(),
-                  textTransform: 'capitalize',
                 }}
               >
-                {item.status}
+                {getStatusText()}
               </Text>
             </View>
 
@@ -506,7 +635,7 @@ export default function EmployerCandidates() {
                 color: theme.colors.text.secondary,
               }}
             >
-              Applied {item.appliedTime}
+              Found {item.discoveredTime}
             </Text>
           </View>
         </View>
@@ -562,8 +691,99 @@ export default function EmployerCandidates() {
           )}
         </View>
 
-        {/* Footer with Progress Bar */}
-        <View>
+        {/* Action based on status */}
+        {item.status === 'discovered' && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.colors.primary.teal,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="paper-plane-outline"
+              size={16}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Send Job Proposal
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {item.status === 'proposal_sent' && (
+          <View
+            style={{
+              backgroundColor: theme.colors.background.accent,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons
+              name="hourglass-outline"
+              size={16}
+              color={theme.colors.primary.deepBlue}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.primary.deepBlue,
+              }}
+            >
+              Proposal Sent {item.proposalSentTime}
+            </Text>
+          </View>
+        )}
+
+        {item.status === 'accepted' && (
+          <TouchableOpacity
+            onPress={() => router.push(`/employer/messages/${item.id}`)}
+            style={{
+              backgroundColor: theme.colors.status.success,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="chatbubble-outline"
+              size={16}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Start Conversation
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Profile Completion Bar */}
+        <View style={{ marginTop: theme.spacing.md }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: theme.spacing.xs }}>
             <Text
               style={{
@@ -630,9 +850,9 @@ export default function EmployerCandidates() {
         <Ionicons
           name={
             searchQuery ? 'search-outline' :
-            activeFilter === 'applied' ? 'person-add-outline' :
-            activeFilter === 'shortlisted' ? 'star-outline' :
-            activeFilter === 'interviewed' ? 'calendar-outline' :
+            activeFilter === 'discovered' ? 'person-add-outline' :
+            activeFilter === 'proposal_sent' ? 'paper-plane-outline' :
+            activeFilter === 'accepted' ? 'checkmark-circle-outline' :
             'people-outline'
           }
           size={32}
@@ -650,10 +870,10 @@ export default function EmployerCandidates() {
         }}
       >
         {searchQuery ? 'No candidates found' :
-         activeFilter === 'applied' ? 'No new applications' :
-         activeFilter === 'shortlisted' ? 'No shortlisted candidates' :
-         activeFilter === 'interviewed' ? 'No interviewed candidates' :
-         'No candidates yet'}
+         activeFilter === 'discovered' ? 'No new discoveries' :
+         activeFilter === 'proposal_sent' ? 'No proposals sent' :
+         activeFilter === 'accepted' ? 'No accepted proposals' :
+         'No candidate matches yet'}
       </Text>
 
       <Text
@@ -666,10 +886,10 @@ export default function EmployerCandidates() {
         }}
       >
         {searchQuery ? 'Try adjusting your search terms or filters' :
-         activeFilter === 'applied' ? 'New applications will appear here when candidates apply' :
-         activeFilter === 'shortlisted' ? 'Candidates you shortlist will appear here' :
-         activeFilter === 'interviewed' ? 'Candidates you schedule for interviews will appear here' :
-         'When candidates apply for your jobs, they will appear here'}
+         activeFilter === 'discovered' ? 'New candidate matches will appear here as they become available' :
+         activeFilter === 'proposal_sent' ? 'Candidates you send proposals to will appear here' :
+         activeFilter === 'accepted' ? 'Candidates who accept your proposals will appear here' :
+         'Create job postings to start discovering matching candidates'}
       </Text>
     </View>
   );

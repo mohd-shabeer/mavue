@@ -541,7 +541,7 @@ export default function Index() {
               paddingVertical: theme.spacing.xs,
               borderRadius: theme.borderRadius.sm,
             }}
-            onPress={() => router.push("/choose-path")}
+            onPress={() => router.push("/employer/home")}
             activeOpacity={0.7}
           >
             <Text

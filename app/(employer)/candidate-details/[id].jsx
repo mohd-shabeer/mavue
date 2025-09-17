@@ -4,15 +4,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Modal,
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Modal,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -21,10 +21,20 @@ export default function CandidateDetails() {
   const { id } = useLocalSearchParams();
   const [showActionModal, setShowActionModal] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showProposalModal, setShowProposalModal] = useState(false);
   const [messageText, setMessageText] = useState('');
-  const [candidateStatus, setCandidateStatus] = useState('applied'); // 'applied', 'shortlisted', 'interviewed', 'hired', 'rejected'
+  const [proposalMessage, setProposalMessage] = useState('');
+  const [selectedJob, setSelectedJob] = useState('');
+  const [candidateStatus, setCandidateStatus] = useState('discovered'); // 'discovered', 'proposal_sent', 'accepted', 'rejected'
 
-  // Mock candidate data based on ID
+  // Mock available jobs for proposal
+  const [availableJobs] = useState([
+    { id: '1', title: 'Senior React Developer', location: 'Mumbai, Remote' },
+    { id: '2', title: 'Frontend Developer', location: 'Bangalore' },
+    { id: '3', title: 'Full Stack Developer', location: 'Pune, Hybrid' },
+  ]);
+
+  // Mock candidate data - redesigned for reverse recruitment
   const [candidateData] = useState({
     id: '1',
     name: 'John Smith',
@@ -36,8 +46,10 @@ export default function CandidateDetails() {
     education: 'B.Tech Computer Science',
     institution: 'Indian Institute of Technology, Mumbai',
     matchPercentage: 95,
-    status: 'applied',
-    appliedTime: '2 hours ago',
+    status: 'discovered', // 'discovered', 'proposal_sent', 'accepted', 'rejected'
+    matchedJobTitle: 'Senior React Developer',
+    discoveredTime: '2 hours ago',
+    proposalSentTime: null,
     salary: '₹12L - ₹18L',
     profileCompletion: 92,
     isAvailable: true,
@@ -117,13 +129,20 @@ export default function CandidateDetails() {
     ]
   });
 
-  const handleStatusChange = (newStatus) => {
-    setCandidateStatus(newStatus);
-    setShowActionModal(false);
+  const handleSendProposal = () => {
+    if (!selectedJob || !proposalMessage.trim()) {
+      Alert.alert('Missing Information', 'Please select a job and write a proposal message.');
+      return;
+    }
+
+    setShowProposalModal(false);
+    setCandidateStatus('proposal_sent');
+    setSelectedJob('');
+    setProposalMessage('');
     
     Alert.alert(
-      'Status Updated',
-      `Candidate status has been changed to ${newStatus}.`,
+      'Proposal Sent!',
+      `Your job proposal has been sent to ${candidateData.name}. You'll be notified when they respond.`,
       [{ text: 'OK' }]
     );
   };
@@ -141,13 +160,44 @@ export default function CandidateDetails() {
     );
   };
 
+  const handleMarkNotInterested = () => {
+    setCandidateStatus('rejected');
+    setShowActionModal(false);
+    
+    Alert.alert(
+      'Candidate Marked as Not Interested',
+      'This candidate has been removed from your discovery list.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleAddToShortlist = () => {
+    setShowActionModal(false);
+    
+    Alert.alert(
+      'Added to Shortlist',
+      'This candidate has been added to your shortlist for future reference.',
+      [{ text: 'OK' }]
+    );
+  };
+
   const getStatusColor = () => {
     switch (candidateStatus) {
-      case 'shortlisted': return theme.colors.status.success;
-      case 'interviewed': return theme.colors.primary.orange;
-      case 'hired': return theme.colors.primary.deepBlue;
+      case 'discovered': return theme.colors.primary.orange;
+      case 'proposal_sent': return theme.colors.primary.deepBlue;
+      case 'accepted': return theme.colors.status.success;
       case 'rejected': return theme.colors.status.error;
       default: return theme.colors.text.tertiary;
+    }
+  };
+
+  const getStatusText = () => {
+    switch (candidateStatus) {
+      case 'discovered': return 'New Discovery';
+      case 'proposal_sent': return 'Proposal Sent';
+      case 'accepted': return 'Proposal Accepted';
+      case 'rejected': return 'Not Interested';
+      default: return 'Unknown';
     }
   };
 
@@ -193,39 +243,21 @@ export default function CandidateDetails() {
         Candidate Profile
       </Text>
 
-      <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-        <TouchableOpacity
-          onPress={() => setShowMessageModal(true)}
-          style={{
-            padding: theme.spacing.sm,
-            borderRadius: theme.borderRadius.full,
-            backgroundColor: theme.colors.background.accent,
-          }}
-          activeOpacity={0.7}
-        >
-          <Ionicons
-            name="chatbubble-outline"
-            size={20}
-            color={theme.colors.primary.teal}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setShowActionModal(true)}
-          style={{
-            padding: theme.spacing.sm,
-            borderRadius: theme.borderRadius.full,
-            backgroundColor: theme.colors.background.accent,
-          }}
-          activeOpacity={0.7}
-        >
-          <Ionicons
-            name="ellipsis-vertical"
-            size={20}
-            color={theme.colors.primary.teal}
-          />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        onPress={() => setShowActionModal(true)}
+        style={{
+          padding: theme.spacing.sm,
+          borderRadius: theme.borderRadius.full,
+          backgroundColor: theme.colors.background.accent,
+        }}
+        activeOpacity={0.7}
+      >
+        <Ionicons
+          name="ellipsis-vertical"
+          size={20}
+          color={theme.colors.primary.teal}
+        />
+      </TouchableOpacity>
     </View>
   );
 
@@ -272,7 +304,9 @@ export default function CandidateDetails() {
               width: 70,
               height: 70,
               borderRadius: 35,
-              backgroundColor: theme.colors.primary.teal,
+              backgroundColor: candidateStatus === 'discovered' 
+                ? theme.colors.primary.orange 
+                : theme.colors.primary.teal,
               justifyContent: 'center',
               alignItems: 'center',
               borderWidth: 3,
@@ -331,6 +365,16 @@ export default function CandidateDetails() {
           <Text
             style={{
               fontSize: theme.typography.sizes.sm,
+              fontFamily: theme.typography.fonts.medium,
+              color: getStatusColor(),
+              marginBottom: theme.spacing.xs,
+            }}
+          >
+            Matches: {candidateData.matchedJobTitle}
+          </Text>
+          <Text
+            style={{
+              fontSize: theme.typography.sizes.sm,
               fontFamily: theme.typography.fonts.regular,
               color: theme.colors.text.secondary,
             }}
@@ -362,10 +406,9 @@ export default function CandidateDetails() {
             fontSize: theme.typography.sizes.sm,
             fontFamily: theme.typography.fonts.medium,
             color: getStatusColor(),
-            textTransform: 'capitalize',
           }}
         >
-          Status: {candidateStatus} • Applied {candidateData.appliedTime}
+          Status: {getStatusText()} • Discovered {candidateData.discoveredTime}
         </Text>
       </View>
 
@@ -628,7 +671,7 @@ export default function CandidateDetails() {
     </View>
   );
 
-  // Action Modal
+  // Action Modal (Three Dots Menu)
   const ActionModal = () => (
     <Modal
       visible={showActionModal}
@@ -671,49 +714,304 @@ export default function CandidateDetails() {
                 textAlign: 'center',
               }}
             >
-              Update Status
+              Candidate Actions
             </Text>
           </View>
 
-          {[
-            { status: 'shortlisted', label: 'Shortlist', icon: 'star', color: theme.colors.status.success },
-            { status: 'interviewed', label: 'Schedule Interview', icon: 'calendar', color: theme.colors.primary.orange },
-            { status: 'hired', label: 'Hire', icon: 'checkmark-circle', color: theme.colors.primary.deepBlue },
-            { status: 'rejected', label: 'Reject', icon: 'close-circle', color: theme.colors.status.error },
-          ].map((action, index) => (
-            <TouchableOpacity
-              key={action.status}
-              onPress={() => handleStatusChange(action.status)}
+          <TouchableOpacity
+            onPress={() => {
+              setShowActionModal(false);
+              setShowMessageModal(true);
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: theme.spacing.lg,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.colors.border.light,
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="chatbubble-outline"
+              size={20}
+              color={theme.colors.primary.teal}
+              style={{ marginRight: theme.spacing.md }}
+            />
+            <Text
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: theme.spacing.lg,
-                borderBottomWidth: index < 3 ? 1 : 0,
-                borderBottomColor: theme.colors.border.light,
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.text.primary,
               }}
-              activeOpacity={0.8}
             >
-              <Ionicons
-                name={action.icon}
-                size={20}
-                color={action.color}
-                style={{ marginRight: theme.spacing.md }}
-              />
-              <Text
-                style={{
-                  fontSize: theme.typography.sizes.base,
-                  fontFamily: theme.typography.fonts.medium,
-                  color: action.color,
-                }}
-              >
-                {action.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+              Send Message
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleAddToShortlist}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: theme.spacing.lg,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.colors.border.light,
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="star-outline"
+              size={20}
+              color={theme.colors.status.success}
+              style={{ marginRight: theme.spacing.md }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.status.success,
+              }}
+            >
+              Add to Shortlist
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleMarkNotInterested}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: theme.spacing.lg,
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="close-circle-outline"
+              size={20}
+              color={theme.colors.status.error}
+              style={{ marginRight: theme.spacing.md }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.status.error,
+              }}
+            >
+              Not Interested
+            </Text>
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
   );
+
+  // Send Proposal Modal
+  const SendProposalModal = () => (
+  <Modal
+    visible={showProposalModal}
+    transparent={true}
+    animationType="slide"
+    onRequestClose={() => setShowProposalModal(false)}
+  >
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: theme.spacing.lg,
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: theme.colors.background.card,
+          borderRadius: theme.borderRadius.xl,
+          width: '100%',
+          maxWidth: 400,
+          padding: theme.spacing.xl,
+          maxHeight: '80%',
+        }}
+      >
+        {/* Header */}
+        <Text
+          style={{
+            fontSize: theme.typography.sizes.lg,
+            fontFamily: theme.typography.fonts.bold,
+            color: theme.colors.text.primary,
+            marginBottom: theme.spacing.sm,
+            textAlign: 'center',
+          }}
+        >
+          Send Job Proposal
+        </Text>
+
+        <Text
+          style={{
+            fontSize: theme.typography.sizes.sm,
+            fontFamily: theme.typography.fonts.regular,
+            color: theme.colors.text.secondary,
+            textAlign: 'center',
+            marginBottom: theme.spacing.lg,
+          }}
+        >
+          Send a personalized job proposal to {candidateData.name}
+        </Text>
+
+        {/* Job Selection */}
+        <Text
+          style={{
+            fontSize: theme.typography.sizes.sm,
+            fontFamily: theme.typography.fonts.semiBold,
+            color: theme.colors.text.primary,
+            marginBottom: theme.spacing.sm,
+          }}
+        >
+          Select Job Position
+        </Text>
+
+        <ScrollView
+          style={{ maxHeight: 120, marginBottom: theme.spacing.md }}
+          showsVerticalScrollIndicator={false}
+        >
+          {availableJobs.map((job) => (
+            <TouchableOpacity
+              key={job.id}
+              onPress={() => setSelectedJob(job.id)}
+              style={{
+                backgroundColor:
+                  selectedJob === job.id
+                    ? theme.colors.background.accent
+                    : theme.colors.neutral.lightGray,
+                borderRadius: theme.borderRadius.md,
+                padding: theme.spacing.md,
+                marginBottom: theme.spacing.sm,
+                borderWidth: selectedJob === job.id ? 2 : 1,
+                borderColor:
+                  selectedJob === job.id
+                    ? theme.colors.primary.teal
+                    : theme.colors.border.light,
+              }}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={{
+                  fontSize: theme.typography.sizes.base,
+                  fontFamily: theme.typography.fonts.semiBold,
+                  color: theme.colors.text.primary,
+                }}
+              >
+                {job.title}
+              </Text>
+              <Text
+                style={{
+                  fontSize: theme.typography.sizes.sm,
+                  fontFamily: theme.typography.fonts.regular,
+                  color: theme.colors.text.secondary,
+                }}
+              >
+                {job.location}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Proposal Message */}
+        <Text
+          style={{
+            fontSize: theme.typography.sizes.sm,
+            fontFamily: theme.typography.fonts.semiBold,
+            color: theme.colors.text.primary,
+            marginBottom: theme.spacing.sm,
+          }}
+        >
+          Proposal Message
+        </Text>
+
+        <TextInput
+          value={proposalMessage}
+          onChangeText={setProposalMessage}
+          placeholder="Write a personalized message..."
+          placeholderTextColor={theme.colors.text.placeholder}
+          multiline
+          numberOfLines={4}
+          style={{
+            backgroundColor: theme.colors.neutral.lightGray,
+            borderRadius: theme.borderRadius.lg,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: theme.spacing.md,
+            fontSize: theme.typography.sizes.base,
+            fontFamily: theme.typography.fonts.regular,
+            color: theme.colors.text.primary,
+            marginBottom: theme.spacing.lg,
+            textAlignVertical: 'top',
+            height: 100,
+          }}
+        />
+
+        {/* Action Buttons */}
+        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+          <TouchableOpacity
+            onPress={() => setShowProposalModal(false)}
+            style={{
+              flex: 1,
+              backgroundColor: theme.colors.neutral.lightGray,
+              borderRadius: theme.borderRadius.lg,
+              paddingVertical: theme.spacing.md,
+              alignItems: 'center',
+            }}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.text.secondary,
+              }}
+            >
+              Cancel
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSendProposal}
+            disabled={!selectedJob || !proposalMessage.trim()}
+            style={{
+              flex: 1,
+              borderRadius: theme.borderRadius.lg,
+              overflow: 'hidden',
+            }}
+            activeOpacity={0.9}
+          >
+            <LinearGradient
+              colors={
+                selectedJob && proposalMessage.trim()
+                  ? [theme.colors.primary.teal, theme.colors.secondary.darkTeal]
+                  : [theme.colors.neutral.mediumGray, theme.colors.neutral.mediumGray]
+              }
+              style={{
+                paddingVertical: theme.spacing.md,
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: theme.typography.sizes.base,
+                  fontFamily: theme.typography.fonts.semiBold,
+                  color: theme.colors.neutral.white,
+                }}
+              >
+                Send Proposal
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </Modal>
+);
+
 
   // Message Modal
   const MessageModal = () => (
@@ -873,7 +1171,7 @@ export default function CandidateDetails() {
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: theme.spacing.xl }}
+        contentContainerStyle={{ paddingBottom: candidateStatus === 'discovered' ? 120 : 20 }}
       >
         <CandidateHeaderCard />
 
@@ -1065,7 +1363,131 @@ export default function CandidateDetails() {
         </Section>
       </ScrollView>
 
+      {/* Bottom Send Proposal Button - Only show if discovered */}
+      {candidateStatus === 'discovered' && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.colors.background.card,
+            borderTopWidth: 1,
+            borderTopColor: theme.colors.border.light,
+            paddingHorizontal: theme.spacing.lg,
+            paddingVertical: theme.spacing.md,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setShowProposalModal(true)}
+            style={{
+              borderRadius: theme.borderRadius.lg,
+              overflow: 'hidden',
+            }}
+            activeOpacity={0.9}
+          >
+            <LinearGradient
+              colors={[theme.colors.primary.teal, theme.colors.secondary.darkTeal]}
+              style={{
+                paddingVertical: theme.spacing.lg,
+                alignItems: 'center',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons
+                name="paper-plane"
+                size={20}
+                color={theme.colors.neutral.white}
+                style={{ marginRight: theme.spacing.sm }}
+              />
+              <Text
+                style={{
+                  fontSize: theme.typography.sizes.md,
+                  fontFamily: theme.typography.fonts.semiBold,
+                  color: theme.colors.neutral.white,
+                }}
+              >
+                Send Job Proposal
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Status message for non-discovered candidates */}
+      {candidateStatus === 'proposal_sent' && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.colors.primary.deepBlue,
+            paddingHorizontal: theme.spacing.lg,
+            paddingVertical: theme.spacing.md,
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons
+              name="hourglass"
+              size={18}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.sm }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Job proposal sent - awaiting response
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {candidateStatus === 'accepted' && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.colors.status.success,
+            paddingHorizontal: theme.spacing.lg,
+            paddingVertical: theme.spacing.md,
+            alignItems: 'center',
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => router.push(`/employer/messages/${candidateData.id}`)}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="chatbubbles"
+              size={18}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.sm }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.base,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Proposal accepted - Start conversation
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <ActionModal />
+      <SendProposalModal />
       <MessageModal />
     </View>
   );

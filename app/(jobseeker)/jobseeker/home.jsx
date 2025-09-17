@@ -562,7 +562,7 @@ export default function JobSeekerHome() {
                 color: theme.colors.text.primary,
               }}
             >
-              Latest Recommendations
+              Latest Matches
             </Text>
             <TouchableOpacity activeOpacity={0.7}>
               <Text

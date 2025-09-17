@@ -4,12 +4,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    RefreshControl,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  FlatList,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -17,7 +17,7 @@ const { width } = Dimensions.get('window');
 export default function EmployerHome() {
   const [refreshing, setRefreshing] = useState(false);
 
-  // Mock company data and statistics
+  // Mock company data and statistics - redesigned for reverse recruitment
   const [dashboardData] = useState({
     company: {
       name: 'TechCorp Solutions',
@@ -26,51 +26,54 @@ export default function EmployerHome() {
     },
     stats: {
       activeJobs: 12,
-      totalApplications: 248,
-      newApplications: 23,
-      shortlistedCandidates: 45,
-      interviewsScheduled: 8,
+      totalCandidateMatches: 248,
+      newMatches: 23,
+      proposalsSent: 45,
+      proposalsAccepted: 8,
       hiredThisMonth: 3,
     },
-    recentApplications: [
+    matchedCandidates: [
       {
         id: '1',
         candidateName: 'John Smith',
         candidateInitials: 'JS',
         position: 'Senior React Developer',
-        appliedTime: '2 hours ago',
+        matchedJobTitle: 'Senior React Developer',
+        discoveredTime: '2 hours ago',
         experience: '5 years',
         location: 'Mumbai',
         skills: ['React', 'Node.js', 'TypeScript'],
         matchPercentage: 95,
-        status: 'new', // 'new', 'reviewed', 'shortlisted', 'rejected'
-        resumeUrl: null,
+        status: 'discovered', // 'discovered', 'proposal_sent', 'accepted', 'rejected'
+        proposalSentTime: null,
       },
       {
         id: '2',
         candidateName: 'Sarah Johnson',
         candidateInitials: 'SJ',
         position: 'Frontend Developer',
-        appliedTime: '4 hours ago',
+        matchedJobTitle: 'Frontend Developer',
+        discoveredTime: '4 hours ago',
         experience: '3 years',
         location: 'Bangalore',
         skills: ['React', 'Vue.js', 'CSS'],
         matchPercentage: 88,
-        status: 'reviewed',
-        resumeUrl: null,
+        status: 'proposal_sent',
+        proposalSentTime: '2 hours ago',
       },
       {
         id: '3',
         candidateName: 'Mike Chen',
         candidateInitials: 'MC',
         position: 'Full Stack Developer',
-        appliedTime: '1 day ago',
+        matchedJobTitle: 'Full Stack Developer',
+        discoveredTime: '1 day ago',
         experience: '4 years',
         location: 'Pune',
         skills: ['React', 'Python', 'AWS'],
         matchPercentage: 82,
-        status: 'shortlisted',
-        resumeUrl: null,
+        status: 'accepted',
+        proposalSentTime: '6 hours ago',
       },
     ],
     activeJobs: [
@@ -79,7 +82,8 @@ export default function EmployerHome() {
         title: 'Senior React Developer',
         location: 'Mumbai, Remote',
         postedDate: '2024-01-10',
-        applicationsCount: 45,
+        matchesFound: 45,
+        proposalsSent: 12,
         status: 'active',
         urgency: 'high',
         salary: '₹8L - ₹15L',
@@ -89,7 +93,8 @@ export default function EmployerHome() {
         title: 'Frontend Developer',
         location: 'Bangalore',
         postedDate: '2024-01-12',
-        applicationsCount: 32,
+        matchesFound: 32,
+        proposalsSent: 8,
         status: 'active',
         urgency: 'medium',
         salary: '₹6L - ₹12L',
@@ -99,7 +104,8 @@ export default function EmployerHome() {
         title: 'Full Stack Developer',
         location: 'Pune, Hybrid',
         postedDate: '2024-01-14',
-        applicationsCount: 28,
+        matchesFound: 28,
+        proposalsSent: 5,
         status: 'active',
         urgency: 'low',
         salary: '₹7L - ₹13L',
@@ -108,35 +114,35 @@ export default function EmployerHome() {
     recentActivity: [
       {
         id: '1',
-        type: 'application',
-        message: 'John Smith applied for Senior React Developer',
+        type: 'new_match',
+        message: 'New candidate match found: John Smith for Senior React Developer',
         time: '2 hours ago',
-        icon: 'person-add-outline',
+        icon: 'person-outline',
         color: theme.colors.primary.teal,
       },
       {
         id: '2',
-        type: 'interview',
-        message: 'Interview scheduled with Sarah Johnson tomorrow at 2 PM',
+        type: 'proposal_accepted',
+        message: 'Mike Chen accepted your job proposal for Full Stack Developer',
         time: '3 hours ago',
-        icon: 'calendar-outline',
-        color: theme.colors.primary.orange,
-      },
-      {
-        id: '3',
-        type: 'shortlist',
-        message: 'Mike Chen was shortlisted for Full Stack Developer',
-        time: '5 hours ago',
-        icon: 'star-outline',
+        icon: 'checkmark-circle-outline',
         color: theme.colors.status.success,
       },
       {
+        id: '3',
+        type: 'proposal_sent',
+        message: 'Job proposal sent to Sarah Johnson for Frontend Developer',
+        time: '5 hours ago',
+        icon: 'paper-plane-outline',
+        color: theme.colors.primary.orange,
+      },
+      {
         id: '4',
-        type: 'job_expired',
-        message: 'Backend Developer job posting expired',
+        type: 'job_posted',
+        message: 'New job posting created: Backend Developer',
         time: '1 day ago',
-        icon: 'time-outline',
-        color: theme.colors.status.warning,
+        icon: 'briefcase-outline',
+        color: theme.colors.primary.deepBlue,
       },
     ],
   });
@@ -148,7 +154,7 @@ export default function EmployerHome() {
     }, 2000);
   };
 
-  // Stats Cards Component
+  // Stats Cards Component - Updated for reverse recruitment
   const StatsCards = () => (
     <View
       style={{
@@ -168,25 +174,25 @@ export default function EmployerHome() {
           onPress: () => router.push('/employer/jobs'),
         },
         {
-          title: 'New Applications',
-          value: dashboardData.stats.newApplications,
-          icon: 'person-add-outline',
+          title: 'New Matches',
+          value: dashboardData.stats.newMatches,
+          icon: 'people-outline',
           color: theme.colors.primary.orange,
-          onPress: () => router.push('/employer/applications'),
-        },
-        {
-          title: 'Shortlisted',
-          value: dashboardData.stats.shortlistedCandidates,
-          icon: 'star-outline',
-          color: theme.colors.status.success,
           onPress: () => router.push('/employer/candidates'),
         },
         {
-          title: 'Interviews',
-          value: dashboardData.stats.interviewsScheduled,
-          icon: 'calendar-outline',
+          title: 'Proposals Sent',
+          value: dashboardData.stats.proposalsSent,
+          icon: 'paper-plane-outline',
+          color: theme.colors.status.success,
+          onPress: () => router.push('/employer/proposals'),
+        },
+        {
+          title: 'Accepted',
+          value: dashboardData.stats.proposalsAccepted,
+          icon: 'checkmark-circle-outline',
           color: theme.colors.primary.deepBlue,
-          onPress: () => router.push('/employer/interviews'),
+          onPress: () => router.push('/employer/accepted'),
         },
       ].map((stat, index) => (
         <TouchableOpacity
@@ -246,20 +252,31 @@ export default function EmployerHome() {
     </View>
   );
 
-  // Recent Applications Component
-  const ApplicationCard = ({ item }) => {
+  // Candidate Match Card Component - Updated for discovery model
+  const CandidateMatchCard = ({ item }) => {
     const getStatusColor = () => {
       switch (item.status) {
-        case 'new': return theme.colors.primary.orange;
-        case 'shortlisted': return theme.colors.status.success;
+        case 'discovered': return theme.colors.primary.orange;
+        case 'proposal_sent': return theme.colors.primary.deepBlue;
+        case 'accepted': return theme.colors.status.success;
         case 'rejected': return theme.colors.status.error;
         default: return theme.colors.text.tertiary;
       }
     };
 
+    const getStatusText = () => {
+      switch (item.status) {
+        case 'discovered': return 'New Match';
+        case 'proposal_sent': return 'Proposal Sent';
+        case 'accepted': return 'Accepted';
+        case 'rejected': return 'Rejected';
+        default: return 'Unknown';
+      }
+    };
+
     return (
       <TouchableOpacity
-        onPress={() => router.push(`/employer/candidates/${item.id}`)}
+        onPress={() => router.push(`/candidate-details/${item.id}`)}
         style={{
           backgroundColor: theme.colors.background.card,
           borderRadius: theme.borderRadius.lg,
@@ -278,7 +295,7 @@ export default function EmployerHome() {
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: item.status === 'new' 
+              backgroundColor: item.status === 'discovered' 
                 ? theme.colors.primary.orange 
                 : theme.colors.background.accent,
               justifyContent: 'center',
@@ -290,7 +307,7 @@ export default function EmployerHome() {
               style={{
                 fontSize: theme.typography.sizes.sm,
                 fontFamily: theme.typography.fonts.bold,
-                color: item.status === 'new' 
+                color: item.status === 'discovered' 
                   ? theme.colors.neutral.white 
                   : theme.colors.primary.teal,
               }}
@@ -317,7 +334,7 @@ export default function EmployerHome() {
                 color: theme.colors.text.secondary,
               }}
             >
-              Applied for {item.position}
+              Matches: {item.matchedJobTitle}
             </Text>
           </View>
 
@@ -336,10 +353,9 @@ export default function EmployerHome() {
                   fontSize: theme.typography.sizes.xs,
                   fontFamily: theme.typography.fonts.medium,
                   color: getStatusColor(),
-                  textTransform: 'capitalize',
                 }}
               >
-                {item.status}
+                {getStatusText()}
               </Text>
             </View>
 
@@ -358,7 +374,7 @@ export default function EmployerHome() {
                   color: theme.colors.neutral.white,
                 }}
               >
-                {item.matchPercentage}%
+                {item.matchPercentage}% Match
               </Text>
             </View>
           </View>
@@ -409,12 +425,12 @@ export default function EmployerHome() {
               color: theme.colors.text.tertiary,
             }}
           >
-            {item.appliedTime}
+            Found {item.discoveredTime}
           </Text>
         </View>
 
         {/* Skills */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: theme.spacing.sm }}>
           {item.skills.slice(0, 3).map((skill, index) => (
             <View
               key={index}
@@ -461,11 +477,102 @@ export default function EmployerHome() {
             </View>
           )}
         </View>
+
+        {/* Action based on status */}
+        {item.status === 'discovered' && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.colors.primary.teal,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="paper-plane-outline"
+              size={16}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Send Proposal
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {item.status === 'proposal_sent' && (
+          <View
+            style={{
+              backgroundColor: theme.colors.background.accent,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons
+              name="hourglass-outline"
+              size={16}
+              color={theme.colors.primary.deepBlue}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.medium,
+                color: theme.colors.primary.deepBlue,
+              }}
+            >
+              Waiting for Response
+            </Text>
+          </View>
+        )}
+
+        {item.status === 'accepted' && (
+          <TouchableOpacity
+            onPress={() => router.push(`/employer/messages/${item.id}`)}
+            style={{
+              backgroundColor: theme.colors.status.success,
+              borderRadius: theme.borderRadius.md,
+              paddingVertical: theme.spacing.sm,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name="chatbubble-outline"
+              size={16}
+              color={theme.colors.neutral.white}
+              style={{ marginRight: theme.spacing.xs }}
+            />
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.sm,
+                fontFamily: theme.typography.fonts.semiBold,
+                color: theme.colors.neutral.white,
+              }}
+            >
+              Start Conversation
+            </Text>
+          </TouchableOpacity>
+        )}
       </TouchableOpacity>
     );
   };
 
-  // Job Card Component
+  // Job Card Component - Updated metrics
   const JobCard = ({ item }) => {
     const getUrgencyColor = () => {
       switch (item.urgency) {
@@ -477,7 +584,7 @@ export default function EmployerHome() {
 
     return (
       <TouchableOpacity
-        onPress={() => router.push(`/employer/jobs/${item.id}`)}
+        onPress={() => router.push(`/jobs/${item.id}`)}
         style={{
           backgroundColor: theme.colors.background.card,
           borderRadius: theme.borderRadius.lg,
@@ -546,19 +653,31 @@ export default function EmployerHome() {
                   marginRight: theme.spacing.md,
                 }}
               >
-                {item.applicationsCount} applications
+                {item.matchesFound} matches found
               </Text>
 
               <Text
                 style={{
-                  fontSize: theme.typography.sizes.xs,
+                  fontSize: theme.typography.sizes.sm,
                   fontFamily: theme.typography.fonts.regular,
-                  color: theme.colors.text.tertiary,
+                  color: theme.colors.text.secondary,
+                  marginRight: theme.spacing.md,
                 }}
               >
-                Posted {item.postedDate}
+                {item.proposalsSent} proposals sent
               </Text>
             </View>
+
+            <Text
+              style={{
+                fontSize: theme.typography.sizes.xs,
+                fontFamily: theme.typography.fonts.regular,
+                color: theme.colors.text.tertiary,
+                marginTop: theme.spacing.xs,
+              }}
+            >
+              Posted {item.postedDate}
+            </Text>
           </View>
 
           <View
@@ -577,7 +696,7 @@ export default function EmployerHome() {
                 textTransform: 'capitalize',
               }}
             >
-              {item.urgency}
+              {item.urgency} Priority
             </Text>
           </View>
         </View>
@@ -640,8 +759,8 @@ export default function EmployerHome() {
   const createFlatListData = () => {
     const data = [
       { type: 'stats', id: 'stats' },
-      { type: 'applications-header', id: 'applications-header' },
-      ...dashboardData.recentApplications.map((item, index) => ({ type: 'application', ...item, id: `application-${item.id}` })),
+      { type: 'matches-header', id: 'matches-header' },
+      ...dashboardData.matchedCandidates.map((item, index) => ({ type: 'candidate_match', ...item, id: `match-${item.id}` })),
       { type: 'jobs-header', id: 'jobs-header' },
       ...dashboardData.activeJobs.map((item, index) => ({ type: 'job', ...item, id: `job-${item.id}` })),
       { type: 'activity-header', id: 'activity-header' },
@@ -655,7 +774,7 @@ export default function EmployerHome() {
       case 'stats':
         return <StatsCards />;
       
-      case 'applications-header':
+      case 'matches-header':
         return (
           <View
             style={{
@@ -674,10 +793,10 @@ export default function EmployerHome() {
                 color: theme.colors.text.primary,
               }}
             >
-              Recent Applications
+              Candidate Matches
             </Text>
             <TouchableOpacity
-              onPress={() => router.push('/employer/applications')}
+              onPress={() => router.push('/employer/candidates')}
               activeOpacity={0.7}
             >
               <Text
@@ -687,14 +806,14 @@ export default function EmployerHome() {
                   color: theme.colors.primary.teal,
                 }}
               >
-                View All
+                Discover More
               </Text>
             </TouchableOpacity>
           </View>
         );
       
-      case 'application':
-        return <ApplicationCard item={item} />;
+      case 'candidate_match':
+        return <CandidateMatchCard item={item} />;
       
       case 'jobs-header':
         return (
