@@ -1,8 +1,13 @@
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from "react";
 import "react-native-reanimated";
 
 export default function RootLayout() {
+   useEffect(() => {
+    SplashScreen.hideAsync(); // hides immediately on load
+  }, []);
   const [loaded] = useFonts({
     "Outfit-Thin": require("../assets/fonts/Outfit-Thin.ttf"),
     "Outfit-ExtraLight": require("../assets/fonts/Outfit-ExtraLight.ttf"),
